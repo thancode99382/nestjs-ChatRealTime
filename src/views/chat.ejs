@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            height: calc(100vh - 120px);
+        }
+        .rooms-list {
+            height: calc(100vh - 180px);
+            overflow-y: auto;
+            border-right: 1px solid #dee2e6;
+        }
+        .chat-messages {
+            height: calc(100vh - 250px);
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        .chat-input {
+            border-top: 1px solid #dee2e6;
+            padding: 15px;
+            background-color: white;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 15px;
+            max-width: 70%;
+        }
+        .message-mine {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+        .message-other {
+            background-color: #e9ecef;
+        }
+        .room-item {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .room-item:hover, .room-item.active {
+            background-color: #f8f9fa;
+        }
+        .users-list {
+            height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Simple Chat</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <span class="nav-link" id="username-display">Welcome, </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logout-btn">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3 chat-container">
+        <div class="row h-100">
+            <!-- Rooms List -->
+            <div class="col-md-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Chat Rooms</h5>
+                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#createRoomModal">
+                        <i class="bi bi-plus-circle"></i> New
+                    </button>
+                </div>
+
+                <div class="rooms-list" id="rooms-list">
+                    <!-- Rooms will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header" id="current-room-header">
+                        Select a room
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                    <div class="chat-input">
+                        <form id="message-form" class="d-flex">
+                            <input type="text" id="message-input" class="form-control me-2" placeholder="Type a message..." required>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Info / Members -->
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        Room Members
+                    </div>
+                    <div class="users-list" id="room-members">
+                        <!-- Members will be loaded here -->
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-outline-primary w-100" id="invite-btn" data-bs-toggle="modal" data-bs-target="#inviteModal">
+                            Invite Users
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Room Modal -->
+    <div class="modal fade" id="createRoomModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Room</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="create-room-form">
+                        <div class="mb-3">
+                            <label for="room-name" class="form-label">Room Name</label>
+                            <input type="text" class="form-control" id="room-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Room Type</label>
+                            <select class="form-select" id="room-type">
+                                <option value="public">Public</option>
+                                <option value="private">Private</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="create-room-btn">Create Room</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Users Modal -->
+    <div class="modal fade" id="inviteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Invite Users</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="users-checkboxes">
+                        <!-- User checkboxes will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="invite-users-btn">Add Selected Users</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Auth Token from localStorage
+        const token = localStorage.getItem('access_token');
+        let currentUser = JSON.parse(localStorage.getItem('user'));
+        let currentRoom = null;
+
+        // Redirect to login if no token
+        if (!token || !currentUser) {
+            window.location.href = '/auth/login';
+        }
+
+        // Socket.io setup
+        const socket = io({
+            auth: {
+                token: token
+            }
+        });
+
+        // Set current username
+        document.getElementById('username-display').textContent = `Welcome, ${currentUser.username}`;
+
+        // DOM elements
+        const roomsList = document.getElementById('rooms-list');
+        const messagesContainer = document.getElementById('chat-messages');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const currentRoomHeader = document.getElementById('current-room-header');
+        const roomMembers = document.getElementById('room-members');
+        const createRoomBtn = document.getElementById('create-room-btn');
+        const inviteUsersBtn = document.getElementById('invite-users-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Socket events
+        socket.on('connect', () => {
+            console.log('Connected to socket server');
+            loadRooms();
+        });
+
+        socket.on('newMessage', (message) => {
+            if (currentRoom && message.room.id === currentRoom.id) {
+                addMessage(message);
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        });
+
+        // Load rooms for current user
+        async function loadRooms() {
+            try {
+                const response = await fetch('/rooms/my-rooms', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const rooms = await response.json();
+                
+                roomsList.innerHTML = '';
+                rooms.forEach(room => {
+                    const roomEl = document.createElement('div');
+                    roomEl.className = 'room-item';
+                    roomEl.textContent = room.name;
+                    roomEl.onclick = () => selectRoom(room);
+                    roomsList.appendChild(roomEl);
+                });
+            } catch (error) {
+                console.error('Error loading rooms:', error);
+            }
+        }
+
+        // Select a room and load messages
+        async function selectRoom(room) {
+            // Clear previous room selection
+            document.querySelectorAll('.room-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Update UI for selected room
+            currentRoom = room;
+            currentRoomHeader.textContent = room.name;
+            
+            // Highlight selected room
+            const roomElements = document.querySelectorAll('.room-item');
+            for (const el of roomElements) {
+                if (el.textContent === room.name) {
+                    el.classList.add('active');
+                }
+            }
+
+            // Join room in socket
+            socket.emit('joinRoom', { roomId: room.id });
+            
+            // Load messages for room
+            loadMessages(room.id);
+            
+            // Load room members
+            loadRoomMembers(room.id);
+        }
+
+        // Load messages for a room
+        async function loadMessages(roomId) {
+            try {
+                const response = await fetch(`/messages/room/${roomId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const messages = await response.json();
+                
+                messagesContainer.innerHTML = '';
+                messages.forEach(message => {
+                    addMessage(message);
+                });
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        // Add a message to the chat
+        function addMessage(message) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${message.user.id === currentUser.id ? 'message-mine' : 'message-other'}`;
+            
+            const header = document.createElement('div');
+            header.className = 'message-header';
+            
+            if (message.user.id !== currentUser.id) {
+                header.textContent = message.user.username;
+                header.style.fontWeight = 'bold';
+                messageEl.appendChild(header);
+            }
+            
+            const content = document.createElement('div');
+            content.textContent = message.content;
+            messageEl.appendChild(content);
+            
+            const time = document.createElement('small');
+            time.className = 'd-block text-end';
+            time.textContent = new Date(message.createdAt).toLocaleTimeString();
+            messageEl.appendChild(time);
+            
+            messagesContainer.appendChild(messageEl);
+        }
+
+        // Load room members
+        async function loadRoomMembers(roomId) {
+            try {
+                const response = await fetch(`/rooms/${roomId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const room = await response.json();
+                
+                roomMembers.innerHTML = '';
+                room.members.forEach(member => {
+                    const memberEl = document.createElement('div');
+                    memberEl.className = 'p-2 border-bottom';
+                    memberEl.textContent = member.username;
+                    if (member.id === currentUser.id) {
+                        memberEl.textContent += ' (You)';
+                    }
+                    roomMembers.appendChild(memberEl);
+                });
+            } catch (error) {
+                console.error('Error loading room members:', error);
+            }
+        }
+
+        // Create a new room
+        createRoomBtn.addEventListener('click', async () => {
+            const roomName = document.getElementById('room-name').value;
+            const roomType = document.getElementById('room-type').value;
+            
+            try {
+                const response = await fetch('/rooms', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name: roomName,
+                        type: roomType
+                    })
+                });
+                
+                const newRoom = await response.json();
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createRoomModal'));
+                modal.hide();
+                
+                // Reload rooms and select the new one
+                await loadRooms();
+                selectRoom(newRoom);
+                
+            } catch (error) {
+                console.error('Error creating room:', error);
+            }
+        });
+
+        // Send message form submit
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentRoom) {
+                alert('Please select a room first');
+                return;
+            }
+            
+            const content = messageInput.value;
+            messageInput.value = '';
+            
+            // Send message via socket
+            socket.emit('sendMessage', {
+                content,
+                roomId: currentRoom.id,
+                userId: currentUser.id
+            });
+        });
+
+        // Load users for invite modal
+        document.getElementById('invite-btn').addEventListener('click', async () => {
+            if (!currentRoom) {
+                alert('Please select a room first');
+                return;
+            }
+            
+            try {
+                // Get all users
+                const usersResponse = await fetch('/users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const users = await usersResponse.json();
+                
+                // Get current room members
+                const roomResponse = await fetch(`/rooms/${currentRoom.id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const room = await roomResponse.json();
+                
+                // Create checkboxes for users not in the room
+                const usersCheckboxes = document.getElementById('users-checkboxes');
+                usersCheckboxes.innerHTML = '';
+                
+                const memberIds = room.members.map(member => member.id);
+                
+                users.forEach(user => {
+                    // Skip if user is already in the room
+                    if (memberIds.includes(user.id)) {
+                        return;
+                    }
+                    
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.className = 'form-check';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.className = 'form-check-input';
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `user-${user.id}`;
+                    checkbox.value = user.id;
+                    
+                    const label = document.createElement('label');
+                    label.className = 'form-check-label';
+                    label.htmlFor = `user-${user.id}`;
+                    label.textContent = user.username;
+                    
+                    checkboxDiv.appendChild(checkbox);
+                    checkboxDiv.appendChild(label);
+                    usersCheckboxes.appendChild(checkboxDiv);
+                });
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        });
+
+        // Invite selected users to room
+        inviteUsersBtn.addEventListener('click', async () => {
+            if (!currentRoom) {
+                alert('Please select a room first');
+                return;
+            }
+            
+            const checkboxes = document.querySelectorAll('#users-checkboxes input[type="checkbox"]:checked');
+            const selectedUserIds = Array.from(checkboxes).map(checkbox => parseInt(checkbox.value));
+            
+            if (selectedUserIds.length === 0) {
+                alert('Please select at least one user');
+                return;
+            }
+            
+            try {
+                await fetch(`/rooms/${currentRoom.id}/members`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        memberIds: selectedUserIds
+                    })
+                });
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('inviteModal'));
+                modal.hide();
+                
+                // Reload room members
+                loadRoomMembers(currentRoom.id);
+                
+            } catch (error) {
+                console.error('Error inviting users:', error);
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+            window.location.href = '/auth/login';
+        });
+    </script>
+</body>
+</html>

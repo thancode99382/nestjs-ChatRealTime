@@ -21,78 +21,116 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# Simple Real-Time Chat Application
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A simple real-time chat application built with NestJS, Socket.IO, and MySQL.
 
-## Project setup
+## Features
+
+- User authentication (register, login)
+- Create and join chat rooms
+- Real-time messaging
+- Invite users to chat rooms
+- View room members
+- Message history
+
+## Technologies Used
+
+- NestJS - Backend framework
+- Socket.IO - Real-time communication
+- TypeORM - ORM for database interactions
+- MySQL - Database
+- Bootstrap - Frontend UI
+- JWT - Authentication
+
+## Prerequisites
+
+- Node.js (v16+)
+- MySQL Server
+- npm or yarn
+
+## Getting Started
+
+### 1. Clone the repository
 
 ```bash
-$ npm install
+git clone <repository-url>
+cd appchat
 ```
 
-## Compile and run the project
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Copy the `.env.example` file to `.env` and update with your configuration:
+
+```bash
+cp .env.example .env
+```
+
+Edit the `.env` file with your database credentials and JWT secret.
+
+### 4. Create the database
+
+Create a MySQL database matching the name in your `.env` file.
+
+### 5. Run the application
 
 ```bash
 # development
-$ npm run start
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# production
+npm run build
+npm run start:prod
 ```
 
-## Run tests
+The application will be available at `http://localhost:3000`
 
-```bash
-# unit tests
-$ npm run test
+## API Endpoints
 
-# e2e tests
-$ npm run test:e2e
+### Auth
 
-# test coverage
-$ npm run test:cov
-```
+- `POST /auth/register` - Register a new user
+- `POST /auth/login` - Login and get JWT token
+- `GET /auth/profile` - Get current user profile (protected)
 
-## Deployment
+### Users
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- `GET /users` - Get all users (protected)
+- `GET /users/me` - Get current user (protected)
+- `GET /users/:id` - Get user by ID (protected)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Rooms
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+- `GET /rooms` - Get all rooms (protected)
+- `GET /rooms/my-rooms` - Get rooms for current user (protected)
+- `GET /rooms/:id` - Get room by ID (protected)
+- `POST /rooms` - Create a new room (protected)
+- `PATCH /rooms/:id` - Update room (protected)
+- `POST /rooms/:id/members` - Add members to room (protected)
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Messages
 
-## Resources
+- `GET /messages/room/:roomId` - Get messages for a room (protected)
+- `POST /messages` - Create a new message (protected)
 
-Check out a few resources that may come in handy when working with NestJS:
+## WebSocket Events
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Client to Server
 
-## Support
+- `joinRoom` - Join a chat room
+- `leaveRoom` - Leave a chat room
+- `sendMessage` - Send a message to a room
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Server to Client
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- `newMessage` - Receive a new message
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -11,6 +11,8 @@ import { Message } from './messages/entities/message.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
+import { ChatModule } from './chat/chat.module';
+import { ViewsModule } from './views/views.module';
 
 @Module({
   imports: [
@@ -35,7 +37,9 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     RoomsModule,
     MessagesModule,
-    AuthModule
+    AuthModule,
+    ChatModule,
+    ViewsModule
   ],
   controllers: [AppController],
   providers: [AppService],

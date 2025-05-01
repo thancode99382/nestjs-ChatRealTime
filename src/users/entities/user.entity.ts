@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany } from 'typeorm';
 import { Room } from '../../rooms/entities/room.entity';
 import { Message } from '../../messages/entities/message.entity';
 
@@ -16,6 +16,12 @@ export class User {
   @Column({ select: false })
   password: string;
   
+  @OneToMany(() => Message, message => message.user)
+  messages: Message[];
+
+  @ManyToMany(() => Room, room => room.members)
+  rooms: Room[];
+
   @CreateDateColumn()
   createdAt: Date;
 

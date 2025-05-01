@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('messages')
+@UseGuards(JwtAuthGuard)
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
@@ -15,6 +17,11 @@ export class MessagesController {
   @Get()
   findAll() {
     return this.messagesService.findAll();
+  }
+
+  @Get('room/:roomId')
+  findByRoom(@Param('roomId') roomId: string) {
+    return this.messagesService.findByRoom(+roomId);
   }
 
   @Get(':id')
@@ -30,5 +37,10 @@ export class MessagesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.messagesService.remove(+id);
+  }
+
+  @Patch(':id/read')
+  markAsRead(@Param('id') id: string) {
+    return this.messagesService.markAsRead(+id);
   }
 }

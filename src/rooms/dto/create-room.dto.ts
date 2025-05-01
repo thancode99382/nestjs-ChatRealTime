@@ -13,6 +13,10 @@ export class CreateRoomDto {
   name: string;
 
   @IsOptional()
+  @IsEnum(RoomType)
+  type?: RoomType;
+
+  @IsOptional()
   @IsArray()
   @IsNumber({}, { each: true })
   memberIds?: number[];
